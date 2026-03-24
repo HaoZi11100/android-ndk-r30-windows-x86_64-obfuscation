@@ -1,37 +1,62 @@
-Android NDK r30 (Integrated with Arkari Obfuscator)
-本仓库提供了一个自定义编译的 Android NDK (r30) 版本，内部集成了 Arkari 混淆工具链。
+# 🚀 OLLVM for Android NDK 30 (LLVM 21)
 
-Arkari 是一个基于 LLVM 的现代化高级混淆器（衍生自 goron）。相比于传统的 OLLVM，它不仅修复了大量已知 Bug，还提供了更强力的间接调用加密和常量加密功能，专为提升 Native 层代码的安全逆向成本而设计。
+[![Build NDK OLLVM Toolchain](https://github.com/luluovo1/ollvm-ndk30-based-on-llvm21-/actions/workflows/build-ndk-ollvm.yml/badge.svg)](https://github.com/luluovo1/ollvm-ndk30-based-on-llvm21-/actions/workflows/build-ndk-ollvm.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![LLVM Version](https://img.shields.io/badge/LLVM-21.0.0-red.svg)](https://llvm.org/)
+[![NDK Version](https://img.shields.io/badge/NDK-r30-green.svg)](https://developer.android.com/ndk)
 
-资产下载 (Assets)
-本 Release 提供了两个版本的 NDK 工具链压缩包，请根据开发需求下载附件：
+[中文版](#-中文说明) | [English](#-english-description)
 
-android-ndk-r30-windows-x86_64-arkari.zip
-描述： 核心产物。集成了 Arkari 混淆功能的修改版 NDK。
-用途： 用于编译 Release 版本，为 JNI/C++ 核心代码（如环境检测、反作弊逻辑、加解密算法）提供强有力的底层安全防护。
-android-ndk-r30-windows-x86_64-official.zip
-描述： 未做任何修改的官方纯净版 NDK。
-用途： 作为对照组使用，或用于日常的 Debug 调试（开启混淆会极大影响断点调试和内存 Dump 分析）。
-##可用的混淆参数 (Flags)
+---
 
-在编译时，向编译器传递以下参数即可精确控制所需的混淆特性：
+## 📖 中文说明
 
--mllvm -irobf-indbr : 间接跳转，并加密跳转目标
--mllvm -irobf-icall : 间接函数调用，并加密目标函数地址
--mllvm -irobf-indgv : 间接全局变量引用，并加密变量地址
--mllvm -irobf-cse : C 字符串 (C-String) 加密
--mllvm -irobf-fla : 过程相关控制流平坦化 (Control-Flow Flattening)
--mllvm -irobf-cie : 整数常量加密
--mllvm -irobf-cfe : 浮点常量加密
--mllvm -irobf-rtti : 擦除 Microsoft CXXABI RTTI 名称 (实验性)
-安全组合 (全开)：
--mllvm -irobf-indbr -mllvm -irobf-icall -mllvm -irobf-indgv -mllvm -irobf-cse -mllvm -irobf-fla -mllvm -irobf-cie -mllvm -irobf-cfe
+本项目提供了一套**原生适配 Android NDK 30 (LLVM 21)** 的高级混淆编译方案。它将经典的 OLLVM 逻辑完美移植到了现代的 `New Pass Manager` 架构中，并依托 GitHub Actions 实现自动化云端编译。
 
-高强度混淆会导致编译耗时显著增加，且生成的 .so 文件体积会变大。建议针对安全需求高的特定函数使用 attribute((annotate("..."))) 进行局部混淆，避免对高频计算模块造成性能瓶颈。
+### 🌟 为什么选择本项目？
+*   **版本前瞻性**: 市面上大多数 OLLVM 停留在 LLVM 12/13，本项目原生支持最新的 **LLVM 21**。
+*   **NDK 零门槛**: 专为 Android NDK 打造，提供直接替换官方工具链的二进制包。
+*   **全功能集成的 Arkari 引擎**: 深度融合 [Arkari](https://github.com/komimoe/Arkari) 强大的过程间混淆套件。
+*   **一键 CI 体验**: 无需本地配置复杂的 LLVM 构建环境，推送代码即可在 GitHub 自动产出工具链。
 
-Android 项目配置示例
-方式一：使用 CMake (CMakeLists.txt)
+### �️ 核心功能矩阵
+| 功能名称 | 混淆参数 (Flag) | 描述 |
+| :--- | :--- | :--- |
+| **控制流平坦化** | `-irobf-fla` | 逻辑逻辑打碎，状态机化 |
+| **字符串加密** | `-irobf-cse` | 全局 C 字符串加密对抗搜素 |
+| **间接函数调用** | `-irobf-icall` | 隐藏函数调用地址 |
+| **常量加密** | `-irobf-cie/cfe` | 整数与浮点数字面量加固 |
+| **间接全局变量** | `-irobf-indgv` | 隐藏全局变量的引用路径 |
+| **间接跳转加密** | `-irobf-indbr` | 防止静态分析器还原跳转表 |
 
-# 全局开启字符串加密和控制流平坦化
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mllvm -irobf-fla -mllvm -irobf-cse")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mllvm -irobf-fla -mllvm -irobf-cse")
+### 📅 开发路线图 (Roadmap)
+- [x] 基于 NDK 30 (LLVM 21) 的源码移植。
+- [x] 适配 GitHub Actions 自动化 Windows 版构建。
+- [ ] **[计划中]** 支持更多的混淆强度控制 (Intensity control)。
+- [ ] **[计划中]** 提供 macOS 与 Linux 版本的自动化构建。
+- [ ] **[研究中]** 引入更强的跨过程混淆分析及 VMP 层。
+
+---
+
+## 🌎 English Description
+
+A native **Android NDK 30 (LLVM 21)** obfuscated compiler solution. This project ports advanced OLLVM logic into the modern `New Pass Manager` infrastructure.
+
+### ✨ Highlights
+*   **Cutting Edge**: Most OLLVM ports are stuck in the legacy era (LLVM 12-16). We provide support for **LLVM 21**.
+*   **Developer Friendly**: Drop-in replacement for official NDK toolchains.
+*   **Powered by Arkari**: Leverages the sophisticated inter-procedural obfuscation engine of [Arkari](https://github.com/komimoe/Arkari).
+*   **Automated Pipelines**: Build through GitHub Actions; no local cross-compilation hassle.
+
+### ⚖️ License & Disclaimer
+This project is for **education and software protection research only**.
+*   **Mixed License**: Parts under LLVM's Apache 2.0 and parts derived from Arkari.
+*   **No Commercial unauthorized development**: Commercial secondary development based on Arkari code in this repo is prohibited without author's permission.
+*   **Compliance**: Users are responsible for legal compliance.
+
+### 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request. If you like this project, please give us a **⭐ Star** to show your support!
+
+### 🔗 Credits
+*   **LLVM Foundation**
+*   **KomiMoe / [Arkari](https://github.com/komimoe/Arkari)**
