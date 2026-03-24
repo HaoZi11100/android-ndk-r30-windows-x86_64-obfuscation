@@ -60,3 +60,10 @@ Contributions are welcome! Please feel free to submit a Pull Request. If you lik
 ### 🔗 Credits
 *   **LLVM Foundation**
 *   **KomiMoe / [Arkari](https://github.com/komimoe/Arkari)**
+
+
+
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mllvm -irobf-indbr -mllvm -irobf-icall -mllvm -irobf-indgv -mllvm -irobf-cse -mllvm -irobf-fla -mllvm -irobf-cie -mllvm -irobf-cfe ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mllvm -irobf-indbr -mllvm -irobf-icall -mllvm -irobf-indgv -mllvm -irobf-cse -mllvm -irobf-fla -mllvm -irobf-cie -mllvm -irobf-cfe ")
+
